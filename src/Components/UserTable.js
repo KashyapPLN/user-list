@@ -225,6 +225,7 @@ const UserTable = () => {
                                 <Form.Control
                                     type="text"
                                     value={currentUser.FirstName}
+                                    required
                                     onChange={(e) =>
                                         setCurrentUser((prev) => ({
                                             ...prev,
@@ -237,6 +238,7 @@ const UserTable = () => {
                                 <Form.Label>Last Name</Form.Label>
                                 <Form.Control
                                     type="text"
+                                    required
                                     value={currentUser.LastName}
                                     onChange={(e) =>
                                         setCurrentUser((prev) => ({
@@ -251,6 +253,7 @@ const UserTable = () => {
                                 <Form.Control
                                     type="email"
                                     value={currentUser.Email}
+                                    required
                                     onChange={(e) =>
                                         setCurrentUser((prev) => ({
                                             ...prev,
@@ -264,6 +267,7 @@ const UserTable = () => {
                                 <Form.Control
                                     type="text"
                                     value={currentUser.Department}
+                                    required
                                     onChange={(e) =>
                                         setCurrentUser((prev) => ({
                                             ...prev,
