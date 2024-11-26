@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Container, Pagination, Row, Col, Spinner } from "react-bootstrap";
 import { MdEdit } from "react-icons/md";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UserTable = () => {
     const [users, setUsers] = useState([]);
@@ -16,10 +18,12 @@ const UserTable = () => {
         const fetchUsers = async () => {
             try {
                 const response = await fetch("https://ajackus-backend-6zf6.onrender.com/users");
-                let data = await response.json();
+                const data = await response.json();
                 setUsers(data);
+                toast.success("Users fetched successfully!");
             } catch (error) {
                 console.error("Error fetching users:", error);
+                toast.error("Error fetching users.");
             }
         };
         fetchUsers();
@@ -35,15 +39,17 @@ const UserTable = () => {
                 },
                 body: JSON.stringify(currentUser)
             });
-            let data = await response.json();
+            const data = await response.json();
             setUsers(data.users);
             setCurrentUser(null);
+            toast.success("User added successfully!");
         } catch (error) {
-            console.error("Error adding users:", error);
+            console.error("Error adding user:", error);
+            toast.error("Error adding user.");
         }
-    }
+    };
 
-    // edit user
+    // Edit user
     const editUser = async () => {
         try {
             const response = await fetch(`https://ajackus-backend-6zf6.onrender.com/users/${currentUser._id}`, {
@@ -53,14 +59,30 @@ const UserTable = () => {
                 },
                 body: JSON.stringify(currentUser)
             });
-            let data = await response.json();
-            console.log(data);
+            const data = await response.json();
             setUsers(data);
             setCurrentUser(null);
+            toast.success("User updated successfully!");
         } catch (error) {
-            console.error("Error updating users:", error);
+            console.error("Error updating user:", error);
+            toast.error("Error updating user.");
         }
-    }
+    };
+
+    // Delete user
+    const handleDelete = async (user) => {
+        try {
+            const response = await fetch(`https://ajackus-backend-6zf6.onrender.com/users/${user._id}`, {
+                method: 'DELETE',
+            });
+            const data = await response.json();
+            setUsers(data);
+            toast.success("User deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            toast.error("Error deleting user.");
+        }
+    };
 
     // Pagination Logic
     const indexOfLastUser = currentPage * usersPerPage;
@@ -87,21 +109,6 @@ const UserTable = () => {
         setShowModal(true);
     };
 
-    // Delete user
-    const handleDelete = async (user) => {
-        try {
-            const response = await fetch(`https://ajackus-backend-6zf6.onrender.com/users/${user._id}`, {
-                method: 'Delete',
-            });
-            let data = await response.json();
-            console.log(data);
-            setUsers(data);
-        } catch (error) {
-            console.error("Error updating users:", error);
-        }
-
-    };
-
     const handleAdd = () => {
         setCurrentUser({
             FirstName: "",
@@ -123,8 +130,7 @@ const UserTable = () => {
     const handleSave = () => {
         if (modalType === "edit") {
             editUser();
-        }
-        else if (modalType === "add") {
+        } else if (modalType === "add") {
             addUser();
         }
         handleClose();
@@ -132,6 +138,7 @@ const UserTable = () => {
 
     return (
         <Container className="mt-4">
+            <ToastContainer position="top-right" autoClose={3000} />
             <Row className="mb-3">
                 <Col>
                     <h2>Users List</h2>
@@ -155,7 +162,7 @@ const UserTable = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentUsers.length >0 ? currentUsers.map((user) => (
+                    {currentUsers.length > 0 ? currentUsers.map((user) => (
                         <tr key={user._id}>
                             <td>{user._id}</td>
                             <td>{user.FirstName}</td>
@@ -168,35 +175,41 @@ const UserTable = () => {
                                 </Button>
                             </td>
                             <td>
-                                <Button variant="text" style={{ color: 'red', fontWeight: 'bolder', textAlign: 'center' }} onClick={() => handleDelete(user)}>
+                                <Button
+                                    variant="text"
+                                    style={{ color: 'red', fontWeight: 'bolder', textAlign: 'center' }}
+                                    onClick={() => handleDelete(user)}
+                                >
                                     <RiDeleteBin6Line />
                                 </Button>
                             </td>
                         </tr>
-                    )):
-                    <div className="mt-4">
-                        <Spinner animation="border" /> <span className="ms-2">Loading</span>
-                    </div>
-                    }
+                    )) : (
+                        <div className="mt-4">
+                            <Spinner animation="border" /> <span className="ms-2">Loading</span>
+                        </div>
+                    )}
                 </tbody>
             </Table>
 
             {/* Pagination */}
-            <Pagination className="justify-content-end">
-                <Pagination.First onClick={handleFirstPage} disabled={currentPage === 1} />
-                <Pagination.Prev onClick={handlePreviousPage} disabled={currentPage === 1} />
-                {Array.from({ length: totalPages }, (_, idx) => (
-                    <Pagination.Item
-                        key={idx + 1}
-                        active={idx + 1 === currentPage}
-                        onClick={() => handlePagination(idx + 1)}
-                    >
-                        {idx + 1}
-                    </Pagination.Item>
-                ))}
-                <Pagination.Next onClick={handleNextPage} disabled={currentPage === totalPages} />
-                <Pagination.Last onClick={handleLastPage} disabled={currentPage === totalPages} />
-            </Pagination>
+            {currentUsers.length > 0 && (
+                <Pagination className="justify-content-end">
+                    <Pagination.First onClick={handleFirstPage} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={handlePreviousPage} disabled={currentPage === 1} />
+                    {Array.from({ length: totalPages }, (_, idx) => (
+                        <Pagination.Item
+                            key={idx + 1}
+                            active={idx + 1 === currentPage}
+                            onClick={() => handlePagination(idx + 1)}
+                        >
+                            {idx + 1}
+                        </Pagination.Item>
+                    ))}
+                    <Pagination.Next onClick={handleNextPage} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={handleLastPage} disabled={currentPage === totalPages} />
+                </Pagination>
+            )}
 
             {/* Add/Edit Modal */}
             {currentUser && (
@@ -210,7 +223,6 @@ const UserTable = () => {
                                 <Form.Label>First Name</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    name="name"
                                     value={currentUser.FirstName}
                                     onChange={(e) =>
                                         setCurrentUser((prev) => ({
@@ -224,7 +236,6 @@ const UserTable = () => {
                                 <Form.Label>Last Name</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    name="lastName"
                                     value={currentUser.LastName}
                                     onChange={(e) =>
                                         setCurrentUser((prev) => ({
@@ -238,7 +249,6 @@ const UserTable = () => {
                                 <Form.Label>Email</Form.Label>
                                 <Form.Control
                                     type="email"
-                                    name="email"
                                     value={currentUser.Email}
                                     onChange={(e) =>
                                         setCurrentUser((prev) => ({
@@ -252,7 +262,6 @@ const UserTable = () => {
                                 <Form.Label>Department</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    name="department"
                                     value={currentUser.Department}
                                     onChange={(e) =>
                                         setCurrentUser((prev) => ({
@@ -266,10 +275,10 @@ const UserTable = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleClose}>
-                            Cancel
+                            Close
                         </Button>
-                        <Button variant="success" onClick={handleSave}>
-                            Save
+                        <Button variant="primary" onClick={handleSave}>
+                            Save Changes
                         </Button>
                     </Modal.Footer>
                 </Modal>
