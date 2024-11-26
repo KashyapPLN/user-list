@@ -187,6 +187,7 @@ const UserTable = () => {
                     )) : (
                         <div className="mt-4">
                             <Spinner animation="border" /> <span className="ms-2">Loading</span>
+                            <p style={{color:'red'}}>* Loading may take a while as the backend is deployed in render.com's free account</p>
                         </div>
                     )}
                 </tbody>
