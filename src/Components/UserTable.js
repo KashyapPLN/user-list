@@ -128,6 +128,14 @@ const UserTable = () => {
 
     // Save or Add User
     const handleSave = () => {
+        const { FirstName, LastName, Email, Department } = currentUser;
+    
+        // Check if any field is empty
+        if (!FirstName || !LastName || !Email || !Department) {
+            toast.error("Please fill out all fields before saving.");
+            return;
+        }
+    
         if (modalType === "edit") {
             editUser();
         } else if (modalType === "add") {
@@ -135,6 +143,7 @@ const UserTable = () => {
         }
         handleClose();
     };
+    
 
     return (
         <Container className="mt-4">
